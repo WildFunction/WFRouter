@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Requires Swift 6.2+ and the iOS 26+ SDK. Uses the runner image's default Xcode.
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+      # UIKit is required, so `swift test` is not an option.
+      # Warnings-as-errors comes from `treatAllWarnings` in Package.swift.
+      # Pick the first iPhone on the newest installed iOS runtime instead of hardcoding a device.
+      - name: Test
+        run: |
+          set -o pipefail
+          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c "
+          import json, sys
+          devices = json.load(sys.stdin)['devices']
+          runtimes = sorted((r for r in devices if 'iOS' in r), reverse=True)
+          print(next(d['udid'] for r in runtimes for d in devices[r] if 'iPhone' in d['name']))
+          ")
+          xcodebuild test \
+            -scheme WFRouter \
+            -destination "id=${DEVICE_ID}" \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults.xcresult
+      - name: Coverage report
+        if: always()
+        run: xcrun xccov view --report --only-targets TestResults.xcresult || true

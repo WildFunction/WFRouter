@@ -1,0 +1,10 @@
+.DS_Store
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcresult
+
+# 库不提交依赖锁文件，由使用方的 App 决定具体版本
+/Package.resolved
