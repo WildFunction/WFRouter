@@ -1,10 +1,12 @@
 // swift-tools-version: 6.2
 import PackageDescription
 
-/// Treat all warnings as errors. Applies to this package's targets only.
-let strictSettings: [SwiftSetting] = [
-    .treatAllWarnings(as: .error),
-]
+/// Warnings are errors only when WFROUTER_STRICT is set (CI and local development).
+/// It must stay off for consumers: Xcode suppresses warnings in remote packages,
+/// and combining that with warnings-as-errors fails the build.
+let strictSettings: [SwiftSetting] = Context.environment["WFROUTER_STRICT"] == nil
+    ? []
+    : [.treatAllWarnings(as: .error)]
 
 let package = Package(
     name: "WFRouter",
@@ -15,7 +17,7 @@ let package = Package(
         .library(name: "WFRouter", targets: ["WFRouter"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/WildFunction/WildFunctionKit.git", from: "0.2.0"),
+        .package(url: "https://github.com/WildFunction/WildFunctionKit.git", from: "0.2.1"),
     ],
     targets: [
         .target(

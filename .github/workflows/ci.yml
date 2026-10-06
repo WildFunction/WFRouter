@@ -16,6 +16,9 @@ jobs:
   test:
     name: Unit tests
     runs-on: macos-26
+    env:
+      # Turns on warnings-as-errors for this package only (see Package.swift).
+      WFROUTER_STRICT: "1"
     steps:
       - uses: actions/checkout@v4
       - name: Show toolchain
@@ -23,7 +26,6 @@ jobs:
           xcodebuild -version
           swift --version
       # UIKit is required, so `swift test` is not an option.
-      # Warnings-as-errors comes from `treatAllWarnings` in Package.swift.
       # Pick the first iPhone on the newest installed iOS runtime instead of hardcoding a device.
       - name: Test
         run: |

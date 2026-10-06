@@ -12,7 +12,7 @@ Strongly typed routing for UIKit. Modules register the routes and deeplinks they
 ## Install
 
 ```swift
-.package(url: "https://github.com/WildFunction/WFRouter.git", from: "0.2.0")
+.package(url: "https://github.com/WildFunction/WFRouter.git", from: "0.2.1")
 // target dependency: .product(name: "WFRouter", package: "WFRouter")
 ```
 
@@ -75,7 +75,7 @@ extension DemoDetailViewController: RouteConfigurable {
 ## Test
 
 ```bash
-xcodebuild test -scheme WFRouter -destination 'platform=iOS Simulator,name=iPhone 17'
+WFROUTER_STRICT=1 xcodebuild test -scheme WFRouter -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
 ## Related

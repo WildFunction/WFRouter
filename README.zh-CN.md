@@ -12,7 +12,7 @@ UIKit 的强类型路由。各模块注册自己处理的路由和 deeplink；�
 ## 安装
 
 ```swift
-.package(url: "https://github.com/WildFunction/WFRouter.git", from: "0.2.0")
+.package(url: "https://github.com/WildFunction/WFRouter.git", from: "0.2.1")
 // target 依赖：.product(name: "WFRouter", package: "WFRouter")
 ```
 
@@ -75,7 +75,7 @@ extension DemoDetailViewController: RouteConfigurable {
 ## 测试
 
 ```bash
-xcodebuild test -scheme WFRouter -destination 'platform=iOS Simulator,name=iPhone 17'
+WFROUTER_STRICT=1 xcodebuild test -scheme WFRouter -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
 ## 相关
