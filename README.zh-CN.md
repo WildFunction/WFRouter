@@ -64,6 +64,7 @@ extension DemoDetailViewController: RouteConfigurable {
 3. push 或 present。没有导航栈时 push 退化为带导航栏的 present。
 4. 不传 `source` 时使用最顶层页面。
 5. 路由未注册、工厂返回 `nil`、scheme 不被允许或 host 未知时，`open` 返回 `false`。
+6. 防连点：来源页所在的导航栈正在转场，或者来源页已经弹出了一个页面时，`open` 直接返回 `false`，不创建页面。调用方不用自己防连点。
 
 ## 约定
 

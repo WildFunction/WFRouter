@@ -102,6 +102,9 @@ public final class Navigator {
 
     /// Opens a route.
     ///
+    /// Repeated taps are absorbed here: while the source's navigation stack is mid-transition, or the
+    /// source already presents a page, the call is ignored and returns `false` without building the page.
+    ///
     /// - Parameters:
     ///   - route: The destination route.
     ///   - style: How to show it. Defaults to push.
@@ -175,6 +178,10 @@ public final class Navigator {
             AppLog.error("Cannot open \(type(of: route)), no source view controller found", category: .router)
             return false
         }
+        if let reason = Self.busyReason(origin, style: style) {
+            AppLog.info("Ignored \(type(of: route)), \(reason)", category: .router)
+            return false
+        }
         let info = RouteInfo(source: origin, style: style, url: url)
         guard let destination = makeViewController(for: route, info: info) else { return false }
 
@@ -196,6 +203,25 @@ public final class Navigator {
             )
         }
         return true
+    }
+
+    /// Why `origin` cannot start another navigation right now, or `nil` when it can.
+    ///
+    /// A double tap on a button or row fires two opens within one transition. Without this, a push stacks
+    /// the same page twice; a present is dropped by UIKit with only a console warning.
+    private static func busyReason(_ origin: UIViewController, style: RouteStyle) -> String? {
+        if origin.presentedViewController != nil {
+            return "source is already presenting a page"
+        }
+        if origin.transitionCoordinator != nil {
+            return "source is mid-transition"
+        }
+        if case .push = style,
+           let navigation = origin as? UINavigationController ?? origin.navigationController,
+           navigation.transitionCoordinator != nil {
+            return "navigation stack is mid-transition"
+        }
+        return nil
     }
 
     private func present(

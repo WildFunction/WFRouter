@@ -201,6 +201,40 @@ struct NavigatorTests {
         _ = window
     }
 
+    // MARK: repeated taps
+
+    @Test("A second open while a push is still animating is ignored, and its page is never built")
+    func ignoresOpenDuringPushTransition() async {
+        let window = TestWindow.show(navigation)
+        var builds = 0
+        navigator.register(SharedRoute.self) { _ in
+            builds += 1
+            return PlainPage()
+        }
+
+        #expect(navigator.open(SharedRoute(id: 1), style: .push(animated: true), from: source))
+        #expect(!navigator.open(SharedRoute(id: 1), style: .push(animated: true), from: source))
+        #expect(builds == 1)
+
+        #expect(await waitUntil { navigation.transitionCoordinator == nil && navigation.viewControllers.count == 2 })
+        // Once the transition settles, navigation works again.
+        #expect(navigator.open(PlainRoute(), style: .push(animated: false), from: navigation))
+        #expect(navigation.viewControllers.count == 3)
+        _ = window
+    }
+
+    @Test("Opening from a page that already presents another page is ignored")
+    func ignoresOpenWhileSourcePresents() async {
+        let window = TestWindow.show(navigation)
+        #expect(navigator.open(PlainRoute(), style: .present(animated: false), from: source))
+        #expect(await waitUntil { navigation.presentedViewController != nil })
+
+        #expect(!navigator.open(PlainRoute(), style: .present(animated: false), from: source))
+        #expect(!navigator.open(PlainRoute(), style: .push(animated: false), from: source))
+        #expect(navigation.viewControllers.count == 1)
+        _ = window
+    }
+
     // MARK: deeplink
 
     @Test("A deeplink resolves to a route and RouteInfo carries the URL")

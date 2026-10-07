@@ -64,6 +64,7 @@ extension DemoDetailViewController: RouteConfigurable {
 3. Push or present. Push without a navigation stack falls back to a present wrapped in a navigation controller.
 4. Without a `source`, the top-most page is used.
 5. `open` returns `false` for unregistered routes, a `nil` builder result, disallowed schemes or unknown hosts.
+6. Repeated taps are ignored: while the source's navigation stack is mid-transition, or the source already presents a page, `open` returns `false` without building the page. Callers need no debounce of their own.
 
 ## Rules
 
